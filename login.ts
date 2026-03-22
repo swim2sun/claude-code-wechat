@@ -11,16 +11,20 @@ import { readAccessFile, saveAccess } from './src/access.js'
 
 const baseUrl = process.argv[2] || DEFAULT_BASE_URL
 
-console.log('正在获取微信登录二维码...\n')
+process.stderr.write('正在获取微信登录二维码...\n\n')
 
 const qr = await fetchQRCode(baseUrl)
 
-// Render QR in terminal
+// Show URL first (always visible even if output is collapsed)
+process.stderr.write(`\n请在微信中打开以下链接完成登录：\n\n`)
+process.stderr.write(`  ${qr.qrcode_img_content}\n\n`)
+
+// Render QR in terminal via stderr (won't be collapsed by Claude Code)
 try {
   const qt = (await import('qrcode-terminal')).default
   await new Promise<void>((resolve) => {
     qt.generate(qr.qrcode_img_content, { small: true }, (code: string) => {
-      console.log(code)
+      process.stderr.write(code + '\n')
       resolve()
     })
   })
@@ -28,9 +32,7 @@ try {
   // Fallback if qrcode-terminal fails
 }
 
-console.log(`\n用微信扫描上方二维码，或在微信中打开以下链接：`)
-console.log(`\n  ${qr.qrcode_img_content}\n`)
-console.log('等待扫码...\n')
+process.stderr.write('等待扫码...\n\n')
 
 const deadline = Date.now() + 480_000
 let scannedShown = false
