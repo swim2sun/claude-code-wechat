@@ -12,31 +12,30 @@ WeChat channel plugin for Claude Code — bridge WeChat messages into your Claud
 
 ## Install
 
-> Marketplace distribution is coming soon. For now, use local plugin mode.
+**1. Add marketplace and install plugin**
 
-```sh
-claude --plugin-dir /path/to/claude-code-wechat \
-       --dangerously-load-development-channels server:wechat
+```
+/plugin marketplace add swim2sun/swim2sun-plugins
+/plugin install wechat@swim2sun-plugins
 ```
 
-If this is your first time, log in first:
+Restart Claude Code after installation to load the plugin.
 
-```sh
-# Start Claude Code with the plugin loaded
-claude --plugin-dir /path/to/claude-code-wechat
+**2. Login**
 
-# Then run the login skill
+```
 /wechat:configure login
 ```
 
-Scan the QR code with WeChat (iOS) to connect. Credentials are saved to `~/.claude/channels/wechat/credentials.json`.
+Scan the QR code with WeChat (iOS). Credentials are saved to `~/.claude/channels/wechat/credentials.json`.
 
-After login, restart with the channel flag:
+**3. Restart with channel enabled**
 
 ```sh
-claude --plugin-dir /path/to/claude-code-wechat \
-       --dangerously-load-development-channels server:wechat
+claude --dangerously-load-development-channels plugin:wechat@swim2sun-plugins
 ```
+
+> Channels are in research preview. The `--dangerously-load-development-channels` flag is required until the plugin is approved on the official allowlist.
 
 Send a message to your ClawBot on WeChat — it arrives in your Claude Code session.
 
@@ -107,7 +106,7 @@ skills/configure/SKILL.md   — configure skill definition
 
 ```sh
 # Clone and install dependencies
-git clone https://github.com/anthropics/claude-code-wechat.git
+git clone https://github.com/swim2sun/claude-code-wechat.git
 cd claude-code-wechat
 bun install
 
