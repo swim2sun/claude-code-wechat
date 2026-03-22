@@ -30,12 +30,8 @@ const data = await res.json() as any
 const qrcodeToken: string = data.qrcode
 const url: string = data.qrcode_img_content
 
-// Render QR code in terminal
-const qt = (await import('qrcode-terminal')).default
-qt.generate(url, { small: true })
-
-console.log(`\n用微信扫描上方二维码，或在微信中打开以下链接：`)
-console.log(`\n  ${url}\n`)
+// Output URL first (always visible even in collapsed output)
+console.log(`用微信打开以下链接完成登录：\n\n  ${url}\n`)
 
 // Last line: structured data for the caller to parse
 console.log(JSON.stringify({ qrcode: qrcodeToken, url }))

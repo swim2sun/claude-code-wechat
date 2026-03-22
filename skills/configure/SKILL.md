@@ -74,59 +74,46 @@ offer.
 
 ### `login` — QR login flow
 
-This is a **TWO-STEP** process. The scripts are in the plugin install directory.
-Find the plugin root by looking for `login-qr.ts`:
+Uses a single login script that handles the entire flow: QR display → poll → save credentials.
+
+Find the plugin root by looking for `login.ts`:
 
 ```
-~/.claude/plugins/cache/*/wechat/*/login-qr.ts
+~/.claude/plugins/cache/*/wechat/*/login.ts
 ```
 
 Or use the original source path if loaded via `--plugin-dir`. Use `ls` to
 resolve the wildcard and get the actual path.
 
-**Step 1: Fetch and display QR code**
+If credentials already exist, read them and warn the user: *"已有凭据
+(accountId: `<accountId>`). 继续登录将覆盖。是否继续？"* — wait for
+confirmation before proceeding.
+
+**Run the login script:**
 
 ```bash
-bun <plugin-root>/login-qr.ts
+bun <plugin-root>/login.ts
 ```
 
-This script:
-- Fetches a QR code from `https://ilinkai.weixin.qq.com/`
-- Renders it in the terminal using `qrcode-terminal`
-- Shows the direct link (user can open in WeChat)
-- Outputs JSON as the last line: `{"qrcode":"...","url":"..."}`
+**This is a long-running command** — it renders a QR code, then polls for scan
+confirmation. It may take up to 8 minutes. **Set timeout to at least 8 minutes.**
 
-**Wait for the user** after showing the QR code. Tell them:
-*"用微信扫描二维码，或在微信中打开上面的链接。扫码完成后告诉我。"*
+After running, tell the user:
+*"按 ctrl+o 展开查看完整二维码，或直接在微信中打开输出中的链接。"*
 
-Extract the `qrcode` value from the last line of output — you'll need it
-for step 2.
-
-**Step 2: Poll for scan result**
-
-After the user says they've scanned (or just proceed after showing the QR):
-
-```bash
-bun <plugin-root>/login-poll.ts <qrcode>
-```
-
-This script polls the WeChat API for scan status. It outputs one line:
-- `scaned` — user scanned, waiting for confirmation on phone
-- `expired` — QR expired (exit code 1). Offer to re-run step 1.
-- `timeout` — timed out (exit code 1). Offer to re-run step 1.
-- `{"token":"...","baseUrl":"...","accountId":"...","userId":"..."}` — success!
-  Credentials saved and scanner added to allowlist. (exit code 0)
+The script handles everything:
+- Renders QR code in terminal
+- Shows a direct URL (user can open in WeChat)
+- Polls for scan confirmation
+- On `confirmed`: saves credentials and auto-adds user to allowlist
+- Outputs status and JSON result
 
 On success, tell the user:
 - *"✅ 微信连接成功！"*
 - Credentials saved, user added to allowlist
 - *"重启 Claude Code 会话以启用微信频道"*
 
-On `scaned`, tell the user *"已扫码，请在微信上点击确认..."* and note
-the poll script is still running.
-
-If credentials already exist, warn the user before step 1: *"已有凭据
-(accountId: `<accountId>`). 继续登录将覆盖。"* — wait for confirmation.
+On failure (expired/timeout), offer to run `/wechat:configure login` again.
 
 ### `clear` — remove credentials
 
