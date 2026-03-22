@@ -74,38 +74,32 @@ offer.
 
 ### `login` — QR login flow
 
-Initiates the WeChat QR login flow via `src/auth.ts`:
+Initiates the WeChat QR login flow using the standalone login script.
 
 1. `mkdir -p ~/.claude/channels/wechat`
-2. Run the login script:
+2. If credentials already exist, read them and warn the user: *"已有凭据
+   (accountId: `<accountId>`). 继续登录将覆盖。是否继续？"* — wait for
+   confirmation before proceeding.
+3. Find the plugin root directory — it contains `login.ts`. Look for it at:
+   `${CLAUDE_PLUGIN_ROOT}/login.ts` or resolve from the skill's own path
+   (two directories up from this SKILL.md file).
+4. Run the login script. **This is a long-running interactive command** — it
+   renders a QR code in terminal, waits for the user to scan, and may take up
+   to 8 minutes. **Do not set a short timeout.** Run:
    ```
-   bun -e "
-   import { fetchQRCode, pollQRStatus, saveCredentials } from './src/auth.js';
-   const qr = await fetchQRCode();
-   console.log('Scan this QR code with WeChat (iOS):');
-   console.log(qr.qrcodeUrl);
-   console.log('(QR rendered above — or open the URL in a browser)');
-   const creds = await pollQRStatus(qr.qrcodeToken);
-   await saveCredentials(creds);
-   console.log('Login successful. accountId:', creds.accountId);
-   "
+   bun ${PLUGIN_ROOT}/login.ts
    ```
-3. The script renders the QR code in the terminal using `qrcode-terminal` and
-   polls for scan confirmation. This may take up to 8 minutes. Do not time out
-   early.
-4. On success: credentials are written to
-   `~/.claude/channels/wechat/credentials.json` with 0o600 permissions.
-5. The `userId` (the bot owner's WeChat ID) is automatically added to
-   `allowFrom` in `access.json` — show the user which ID was added.
-6. Tell the user: *"Login successful. Restart your Claude Code session with:
-   `claude --channels plugin:wechat@xiangyang-plugins`"*
+   where `${PLUGIN_ROOT}` is the resolved plugin root directory.
+5. The script handles everything: QR display, polling, credential save, and
+   auto-adding the user to the allowlist.
+6. On success, tell the user: *"重启 Claude Code 会话以启用微信频道。"*
+7. On failure/timeout, tell the user to run `/wechat:configure login` again.
 
-If the QR scan times out, tell the user to run `/wechat:configure login` again
-to get a fresh code.
-
-If credentials already exist, warn the user: *"Credentials already set for
-`<accountId>`. Running login will overwrite them. Proceed? (yes/no)"* — wait
-for confirmation before running the Bash command.
+**Finding the plugin root:** The most reliable way is to check common locations:
+- Use `ls` to find `login.ts` in the plugin cache:
+  `ls ~/.claude/plugins/cache/*/wechat/*/login.ts` or
+  `ls ~/.claude/plugins/cache/xiangyang-plugins/wechat/*/login.ts`
+- Or if loaded via `--plugin-dir`, it will be at the original source path.
 
 ### `clear` — remove credentials
 
