@@ -9,6 +9,7 @@ const STATE_DIR = join(homedir(), '.claude', 'channels', 'wechat')
 const CREDENTIALS_FILE = join(STATE_DIR, 'credentials.json')
 
 const DEFAULT_BASE_URL = 'https://ilinkai.weixin.qq.com/'
+const DEFAULT_CDN_BASE_URL = 'https://novac2c.cdn.weixin.qq.com/c2c'
 
 export type Credentials = {
   token: string
@@ -74,4 +75,4 @@ export async function pollQRStatus(baseUrl: string, qrcode: string): Promise<QRS
   }
 }
 
-export { STATE_DIR, CREDENTIALS_FILE, DEFAULT_BASE_URL }
+export { STATE_DIR, CREDENTIALS_FILE, DEFAULT_BASE_URL, DEFAULT_CDN_BASE_URL }

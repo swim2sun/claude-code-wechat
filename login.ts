@@ -7,7 +7,6 @@
  */
 
 import { fetchQRCode, pollQRStatus, saveCredentials, DEFAULT_BASE_URL } from './src/auth.js'
-import { readAccessFile, saveAccess } from './src/access.js'
 
 const baseUrl = process.argv[2] || DEFAULT_BASE_URL
 
@@ -32,7 +31,7 @@ try {
   // Fallback if qrcode-terminal fails
 }
 
-process.stderr.write('等待扫码...\n\n')
+process.stderr.write('等待扫码...（扫码登录后按 ctrl+o 关闭二维码）\n\n')
 
 const deadline = Date.now() + 480_000
 let scannedShown = false
@@ -64,16 +63,6 @@ while (Date.now() < deadline) {
         userId: status.ilink_user_id,
       }
       saveCredentials(creds)
-
-      // Auto-add scanning user to allowlist
-      if (creds.userId) {
-        const access = readAccessFile()
-        if (!access.allowFrom.includes(creds.userId)) {
-          access.allowFrom.push(creds.userId)
-          saveAccess(access)
-          console.log(`已自动将你的微信 ID 加入 allowlist: ${creds.userId}`)
-        }
-      }
 
       console.log('\n✅ 微信连接成功！')
       console.log(`   账号 ID: ${creds.accountId}`)

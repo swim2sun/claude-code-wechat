@@ -140,6 +140,8 @@ export async function uploadAndSendImage(opts: {
   const filekey = randomBytes(16).toString('hex')
   const aeskey = randomBytes(16)
 
+  const aeskeyHex = aeskey.toString('hex')
+
   const uploadResp = await getUploadUrl({
     baseUrl, token,
     req: {
@@ -150,7 +152,7 @@ export async function uploadAndSendImage(opts: {
       rawfilemd5,
       filesize,
       no_need_thumb: true,
-      aeskey: aeskey.toString('hex'),
+      aeskey: aeskeyHex,
     },
   })
 
@@ -183,7 +185,7 @@ export async function uploadAndSendImage(opts: {
     })
   }
 
-  // Send image message
+  // Send image message — aes_key must be base64(hex string), not base64(raw bytes)
   const clientId = `wechat-${Date.now()}-${randomBytes(4).toString('hex')}`
   await sendMessage({
     baseUrl, token,
@@ -199,7 +201,7 @@ export async function uploadAndSendImage(opts: {
           image_item: {
             media: {
               encrypt_query_param: downloadParam,
-              aes_key: Buffer.from(aeskey).toString('base64'),
+              aes_key: Buffer.from(aeskeyHex).toString('base64'),
               encrypt_type: 1,
             },
             mid_size: filesize,
@@ -234,6 +236,8 @@ export async function uploadAndSendFile(opts: {
   const aeskey = randomBytes(16)
   const fileName = basename(filePath)
 
+  const aeskeyHex = aeskey.toString('hex')
+
   const uploadResp = await getUploadUrl({
     baseUrl, token,
     req: {
@@ -244,7 +248,7 @@ export async function uploadAndSendFile(opts: {
       rawfilemd5,
       filesize,
       no_need_thumb: true,
-      aeskey: aeskey.toString('hex'),
+      aeskey: aeskeyHex,
     },
   })
 
@@ -277,7 +281,7 @@ export async function uploadAndSendFile(opts: {
     })
   }
 
-  // Send file message
+  // Send file message — aes_key must be base64(hex string), not base64(raw bytes)
   const clientId = `wechat-${Date.now()}-${randomBytes(4).toString('hex')}`
   await sendMessage({
     baseUrl, token,
@@ -293,7 +297,7 @@ export async function uploadAndSendFile(opts: {
           file_item: {
             media: {
               encrypt_query_param: downloadParam,
-              aes_key: Buffer.from(aeskey).toString('base64'),
+              aes_key: Buffer.from(aeskeyHex).toString('base64'),
               encrypt_type: 1,
             },
             file_name: fileName,

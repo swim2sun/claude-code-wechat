@@ -1,3 +1,6 @@
 node_modules/
 _refs/
 *.tgz
+_local_marketplace/
+docs/superpowers/
+.claude/settings.local.json
