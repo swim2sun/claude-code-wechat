@@ -8,7 +8,7 @@ claude code微信插件，通过 iLink Bot API 将微信消息接入 Claude Code
 
 ## 前置条件
 
-- **[Claude Code](https://claude.com/claude-code)** v2.1.80+
+- **[Claude Code](https://claude.com/claude-code)** v2.1.80+（需要 claude.ai 账号登录，不支持 Console 或 API key 登录）
 - **[Bun](https://bun.sh)** — `curl -fsSL https://bun.sh/install | bash`
 - **微信** 8.0.70+
 

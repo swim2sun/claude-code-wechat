@@ -8,7 +8,7 @@ WeChat channel plugin for Claude Code — bridge WeChat messages into your Claud
 
 ## Prerequisites
 
-- **[Claude Code](https://claude.com/claude-code)** v2.1.80+
+- **[Claude Code](https://claude.com/claude-code)** v2.1.80+ (requires claude.ai login; Console and API key auth not supported)
 - **[Bun](https://bun.sh)** — `curl -fsSL https://bun.sh/install | bash`
 - **WeChat** 8.0.70+
 
